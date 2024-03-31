@@ -1,0 +1,24 @@
+{
+    "name": "themismin/auto-switch-site",
+    "require": {
+        "itbdw/ip-database": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ThemisMin\\AutoSwitchSite\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ThemisMin",
+            "email": "ThemisMin@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ThemisMin\\AutoSwitchSite\\AutoSwitchSiteServiceProvider"
+            ]
+        }
+    }
+}
