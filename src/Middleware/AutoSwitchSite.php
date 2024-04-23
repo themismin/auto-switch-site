@@ -26,7 +26,7 @@ class AutoSwitchSite
         $config = config('auto_switch_site');
         $cookie_name = $config['cookie_name'];
 
-        // lock_site: 1 记住锁, 不根据ip切换; 0 清除切换锁, 根据ip切换; null 根据ip切换;
+        // lock_site:站点锁; 1 记住锁, 不根据ip切换; 0 清除切换锁, 根据ip切换; null 根据ip切换;
         $lock_site = null;
 
         if (is_null($lock_site)) {
@@ -37,8 +37,12 @@ class AutoSwitchSite
         }
 
         // 根据ip切换
-        if (1 != $lock_site) {    // 根据ip切换
-            $ip = $request->ip(); // 当前访问的IP地址
+        if (
+            1 != $lock_site // 站点锁未打开
+            && !$this->_checkrobot() // 不是机器人
+            && !$this->_isCrawler() // 不是爬虫
+        ) {
+            $ip = $request->ip();          // 当前访问的IP地址
 
             if (!$this->_blockIps($ip)) {                 // 不是屏蔽的IP
                 $location = IpLocation::getLocation($ip); // IP解析
@@ -86,5 +90,97 @@ class AutoSwitchSite
             }
         }
         return $result;
+    }
+
+    /**
+     * 是否机器人爬虫
+     * @param string $useragent
+     * @return bool
+     */
+    protected function _checkrobot($useragent = '')
+    {
+        static $kw_spiders = array('bot', 'crawl', 'spider', 'slurp', 'sohu-search', 'lycos', 'robozilla');
+        static $kw_browsers = array('msie', 'netscape', 'opera', 'konqueror', 'mozilla');
+        $useragent = strtolower(empty($useragent) ? $_SERVER['HTTP_USER_AGENT'] : $useragent);
+        if (strpos($useragent, 'http://') === false && $this->_dstrpos($useragent, $kw_browsers))
+            return false;
+        if ($this->_dstrpos($useragent, $kw_spiders))
+            return true;
+        return false;
+    }
+
+    protected function _dstrpos($string, $arr, $returnvalue = false)
+    {
+        if (empty($string))
+            return false;
+        foreach ((array)$arr as $v) {
+            if (strpos($string, $v) !== false) {
+                $return = $returnvalue ? $v : true;
+                return $return;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 是否爬虫
+     * @return bool|void
+     */
+    protected function _isCrawler()
+    {
+        if (!empty($agent)) {
+            $spiderSite = array(
+                "TencentTraveler",
+                "Baiduspider+",
+                "BaiduGame",
+                "Googlebot",
+                "msnbot",
+                "Sosospider+",
+                "Sogou web spider",
+                "ia_archiver",
+                "Yahoo! Slurp",
+                "YoudaoBot",
+                "Yahoo Slurp",
+                "MSNBot",
+                "Java (Often spam bot)",
+                "BaiDuSpider",
+                "Voila",
+                "Yandex bot",
+                "BSpider",
+                "twiceler",
+                "Sogou Spider",
+                "Speedy Spider",
+                "Google AdSense",
+                "Heritrix",
+                "Python-urllib",
+                "Alexa (IA Archiver)",
+                "Ask",
+                "Exabot",
+                "Custo",
+                "OutfoxBot/YodaoBot",
+                "yacy",
+                "SurveyBot",
+                "legs",
+                "lwp-trivial",
+                "Nutch",
+                "StackRambler",
+                "The web archive (IA Archiver)",
+                "Perl tool",
+                "MJ12bot",
+                "Netcraft",
+                "MSIECrawler",
+                "WGet tools",
+                "larbin",
+                "Fish search",
+                //其它蜘蛛,
+            );
+            foreach ($spiderSite as $val) {
+                $str = strtolower($val);
+                if (strpos($agent, $str) !== false) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
