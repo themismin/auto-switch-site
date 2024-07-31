@@ -4,6 +4,7 @@ namespace ThemisMin\AutoSwitchSite\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cookie;
 use itbdw\Ip\IpLocation;
 
@@ -36,9 +37,17 @@ class AutoSwitchSite
             $lock_site = Cookie::get($cookie_name, null);
         }
 
+        // 网站全路径
+        $fullUrl = $request->fullUrl();
+        //
+        $parseUrl = parse_url($fullUrl);
+        // 路径
+        $path = Arr::get($parseUrl, 'path', '/');
+
         // 根据ip切换
         if (
-            1 != $lock_site // 站点锁未打开
+            '/' == $path // 是首页
+            && 1 != $lock_site // 站点锁未打开
             && !$this->_checkrobot() // 不是机器人
             && !$this->_isCrawler() // 不是爬虫
         ) {

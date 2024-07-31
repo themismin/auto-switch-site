@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 站点切换配置
  */
@@ -40,12 +41,12 @@ return [
         ],
         'en'    => [
             'address' => [], // 空为其它不匹配则默认切换到该地址, 放在最后
-            'domain'  => env('EN_DOMAIN', 'https://en.lanshauk.com'),
+            'domain'  => env('EN_DOMAIN', 'https://www.lansha.co.uk'),
             'domains' => [
-                env('EN_DOMAIN', 'https://en.lanshauk.com'),
-                'https://en.dev.lanshauk.com',
-                'https://en.beta.lanshauk.com',
-                'https://en.lanshauk.com',
+                env('EN_DOMAIN', 'https://www.lansha.co.uk'),
+                'https://www.dev.lanshauk.com.uk',
+                'https://www.beta.lanshauk.com.uk',
+                'https://www.lansha.co.uk',
             ],
         ],
     ],
